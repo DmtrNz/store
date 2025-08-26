@@ -32,3 +32,9 @@ jobs:
           else
             echo "context=none" >> $GITHUB_OUTPUT
           fi
+  checks:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changed_context != 'none'
+    uses: ./.github/workflows/checks.yaml
+    with:
+      context: ${{ needs.detect-changes.outputs.changed_context }}
