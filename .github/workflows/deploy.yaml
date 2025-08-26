@@ -38,3 +38,21 @@ jobs:
     uses: ./.github/workflows/checks.yaml
     with:
       context: ${{ needs.detect-changes.outputs.changed_context }}
+ 
+  build:
+    needs:
+      - detect-changes
+      - checks
+    if: needs.detect-changes.outputs.changed_context != 'none'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Build and push
+        run: |
+          docker build -t ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }} ./${{ needs.detect-changes.outputs.changed_context }}
+          docker push ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }}
