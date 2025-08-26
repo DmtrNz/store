@@ -31,3 +31,4 @@ jobs:
             echo "context=backend" >> $GITHUB_OUTPUT
           else
             echo "context=none" >> $GITHUB_OUTPUT
+          fi
