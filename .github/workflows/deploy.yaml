@@ -56,3 +56,29 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }} ./${{ needs.detect-changes.outputs.changed_context }}
           docker push ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }}
+ 
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - detect-changes
+      - build
+    if: needs.detect-changes.outputs.changed_context != 'none'
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            IMAGE=${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }}
+            docker pull $IMAGE
+            cd /var/www/dmtrdevopspractise.at.by
+ 
+            if [ "${{ needs.detect-changes.outputs.changed_context }}" = "frontend" ]; then
+              sed -i "s|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=$IMAGE|" .env
+            elif [ "${{ needs.detect-changes.outputs.changed_context }}" = "backend" ]; then
+              sed -i "s|^BACKEND_IMAGE=.*|BACKEND_IMAGE=$IMAGE|" .env
+            fi
+ 
+            docker compose up -d
