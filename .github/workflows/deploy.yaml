@@ -1,0 +1,33 @@
+name: Deploy
+ 
+on:
+  push:
+    branches: [ main ]
+ 
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_context: ${{ steps.set-context.outputs.context }}
+    steps:
+      - uses: actions/checkout@v3
+ 
+      - name: Detect changed services
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+ 
+      - name: Set changed context
+        id: set-context
+        run: |
+          if [[ "${{ steps.filter.outputs.frontend }}" == "true" ]]; then
+            echo "context=frontend" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.filter.outputs.backend }}" == "true" ]]; then
+            echo "context=backend" >> $GITHUB_OUTPUT
+          else
+            echo "context=none" >> $GITHUB_OUTPUT

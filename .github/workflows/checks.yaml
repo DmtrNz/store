@@ -1,0 +1,26 @@
+name: Lint & Tests
+ 
+on:
+  workflow_call:
+    inputs:
+      context:
+        required: true
+        type: string
+ 
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+ 
+      - name: Установка зависимостей
+        working-directory: ${{ inputs.context }}
+        run: npm ci
+ 
+      - name: Линтинг
+        working-directory: ${{ inputs.context }}
+        run: npm run lint
+ 
+      - name: Тестирование
+        working-directory: ${{ inputs.context }}
+        run: npm run test
