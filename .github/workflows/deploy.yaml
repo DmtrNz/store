@@ -54,7 +54,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
       - name: Build and push
         run: |
-          docker build -t ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }} ./${{ needs.detect-changes.outputs.changed_context }}
+          docker build \
+            -t ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }} \
+            --build-arg VITE_BACKEND_URL=https://dmtrdevopspractise.at.by/api \
+            ./${{ needs.detect-changes.outputs.changed_context }}
           docker push ${{ secrets.DOCKER_USER }}/devops-${{ needs.detect-changes.outputs.changed_context }}:${{ github.sha }}
  
   deploy:
