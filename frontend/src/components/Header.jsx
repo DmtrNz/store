@@ -7,7 +7,7 @@ const Header = ({ searchQuery, setSearchQuery }) => {
         <div className="logo">
           🛍️ DmtrNZ shop
         </div>
-        <div className="search-container">
+        <div className="search-container"> 
           <Search size={20} style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
           <input
             type="text"
